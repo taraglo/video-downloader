@@ -1,4 +1,4 @@
-# HQporner and Eporner Video Downloader
+# HQporner and Eporner Bulk Video Downloader
 
 ### Introduction
 The python script in `main.py` downloads multiple videos concurrently from [hqporner.com](https://hqporner.com) and [eporner.com](https://www.eporner.com).

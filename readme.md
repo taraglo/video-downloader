@@ -9,7 +9,7 @@ If you change the webdriver variable name, make sure to change in other places t
 1. Install python 3.10 or whichever version works.  
 2. Update config values in `settings.py` file.  
 3. Install all the required packages in `requirements.txt` file.  
-4. List all the videos links you want to download from in `urls.txt` file.
+4. List all the video links you want to download from in `urls.txt` file.
 5. Run `python3 main.py` to start the download process.
 
 ---

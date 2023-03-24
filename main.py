@@ -198,7 +198,7 @@ if ff_driver is not None:
 
 
 async def download(session: aiohttp.ClientSession, params: DownloadParams, index: int):
-    if params.model in params.title:
+    if params.model in params.title:  # to-do: fix extra underscore at the beginning of name
         filename = format_name(params.model + "_" + params.title.replace(params.model, "") + ".mp4")
     else:
         filename = format_name(params.model + "_" + params.title + ".mp4")
@@ -232,7 +232,7 @@ async def download_from_queue(queue, session, counter):
 
 async def download_all(url_list):
     async with aiohttp.ClientSession() as session:
-        counter = 0
+        counter = 0    # to-do: counter needs to be fixed
         tasks = []
         queue = asyncio.Queue()
         for url in url_list:

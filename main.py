@@ -223,24 +223,24 @@ async def download(session: aiohttp.ClientSession, params: DownloadParams, index
     print(display_string)
 
 
-async def download_from_queue(queue, session, counter):
+async def download_from_queue(queue, session):
     while True:
-        url = await queue.get()
+        url, counter = await queue.get()
         await download(session, url, counter)
         queue.task_done()
 
 
 async def download_all(url_list):
     async with aiohttp.ClientSession() as session:
-        counter = 0    # to-do: counter needs to be fixed
+        counter = 0
         tasks = []
         queue = asyncio.Queue()
         for url in url_list:
-            queue.put_nowait(url)
+            queue.put_nowait((url, counter))
+            counter += 1
 
         for i in range(max_concurrent_downloads):
-            task = asyncio.create_task(download_from_queue(queue, session, counter))
-            counter += 1
+            task = asyncio.create_task(download_from_queue(queue, session))
             tasks.append(task)
 
         await queue.join()

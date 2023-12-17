@@ -10,6 +10,8 @@ from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.firefox.options import Options
+from tqdm import tqdm
+
 
 time_1 = time.perf_counter()
 
@@ -60,7 +62,7 @@ def format_name(file_name: str) -> str:
     return formatted_name
 
 
-def format_time(time_in_seconds: float) -> str:
+def format_time_descriptive(time_in_seconds: float) -> str:
     hours, remainder = divmod(time_in_seconds, 3600)
     minutes, seconds = divmod(remainder, 60)
     if hours >= 1:
@@ -70,6 +72,12 @@ def format_time(time_in_seconds: float) -> str:
     else:
         time_string = f"{seconds:.2f} seconds"
     return time_string
+
+
+def format_time(seconds):
+    hours, remainder = divmod(seconds, 3600)
+    minutes, seconds = divmod(remainder, 60)
+    return f"{int(hours):02}:{int(minutes):02}:{int(seconds):02}"
 
 
 if browser_needed:
@@ -203,24 +211,33 @@ async def download(session: aiohttp.ClientSession, params: DownloadParams, index
     else:
         filename = format_name(params.model + "_" + params.title + ".mp4")
 
-    print(str(index + 1) + ". Downloading... " + filename)
+    display_string = ""
+
+    if len(params.title) > 37:
+        display_string = (str(index + 1) if (index + 1 > 9) else ("0" + str(index + 1))) + ". " + format_name(params.title[:34]) + "... "
+    else:
+        display_string = (str(index + 1) if (index + 1 > 9) else ("0" + str(index + 1))) + ". " + format_name(params.title).ljust(37) + " "
+
+    print("\n\n")
 
     time_start = time.perf_counter()
 
     async with session.get(params.url, timeout=3600) as response:
+        total_size = int(response.headers.get('content-length', 0))
         with open(save_directory + filename, 'wb') as f:
-            while True:
-                chunk = await response.content.read(1024*1024)
-                if not chunk:
-                    break
-                f.write(chunk)
-
-    time_end = time.perf_counter()
-    time_passed = time_end - time_start
-    display_string = "   Download completed (" + str(index + 1) + ") in " + str(format_time(time_passed))
-    if index >= 9:
-        display_string = "    Download completed (" + str(index + 1) + ") in " + str(format_time(time_passed))
-    print(display_string)
+            with tqdm(total=total_size, unit='B', unit_scale=True, desc=display_string, leave=True) as pbar:
+                while True:
+                    chunk = await response.content.read(1024*1024)
+                    if not chunk:
+                        break
+                    f.write(chunk)
+                    pbar.update(len(chunk))
+                    time_current = time.perf_counter()
+                    time_elapsed = time_current - time_start
+                    download_speed = pbar.n / time_elapsed
+                    if download_speed > 0:
+                        est_time_remaining = (total_size - pbar.n) / download_speed
+                        pbar.set_postfix_str(f"Elapsed: {format_time(time_elapsed)}s, ETA: {format_time(est_time_remaining)}s")
 
 
 async def download_from_queue(queue, session):
@@ -252,12 +269,12 @@ if __name__ == '__main__':
     asyncio.run(download_all(server_dnld_urls))
 
     if len(failed_downloads) > 0:
-        print('\nFailed video downloads:')
+        print('\n\nFailed video downloads:')
         for item in failed_downloads:
             print(item)
     else:
-        print('\nAll videos downloaded successfully.')
+        print('\n\nAll videos downloaded successfully.')
 
     time_2 = time.perf_counter()
     time_3 = time_2 - time_1
-    print("Process finished in " + format_time(time_3))
+    print("Process finished in " + format_time_descriptive(time_3) + "\n")

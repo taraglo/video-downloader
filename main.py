@@ -214,7 +214,7 @@ async def download(session: aiohttp.ClientSession, params: DownloadParams, index
     display_string = ""
 
     if len(params.title) > 37:
-        display_string = (str(index + 1) if (index + 1 > 9) else ("0" + str(index + 1))) + ". " + format_name(params.title[:34]) + "... "
+        display_string = (str(index + 1) if (index + 1 > 9) else ("0" + str(index + 1))) + ". " + format_name(params.title)[:34] + "... "
     else:
         display_string = (str(index + 1) if (index + 1 > 9) else ("0" + str(index + 1))) + ". " + format_name(params.title).ljust(37) + " "
 

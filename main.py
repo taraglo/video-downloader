@@ -218,8 +218,6 @@ async def download(session: aiohttp.ClientSession, params: DownloadParams, index
     else:
         display_string = (str(index + 1) if (index + 1 > 9) else ("0" + str(index + 1))) + ". " + format_name(params.title).ljust(37) + " "
 
-    print("\n\n")
-
     time_start = time.perf_counter()
 
     async with session.get(params.url, timeout=3600) as response:
@@ -266,6 +264,7 @@ async def download_all(url_list):
 
 
 if __name__ == '__main__':
+    print("\n")
     asyncio.run(download_all(server_dnld_urls))
 
     if len(failed_downloads) > 0:

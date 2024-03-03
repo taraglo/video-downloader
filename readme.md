@@ -16,4 +16,8 @@ If you change the webdriver variable name, make sure to change in other places t
 6. Run `python3 main.py` to start the download process.
 
 ---
+
+Check out my other app for organizing all these videos: https://ministash.org
+
+---
 Coded by [taraglo](https://www.github.com/taraglo) on GitHub

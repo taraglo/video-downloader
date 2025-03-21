@@ -140,7 +140,7 @@ for a in range(0, len(urls)):
                             matched_words += 1
                     if matched_words > 0:
                         print("   " + str(video_index) + ". " + search_results[video_index].attrs['href'])
-                vid_index = int(input("Select a video to continue, or enter 69 to ignore: "))
+                vid_index = int(input("Select a video to continue, or enter 69 to skip: "))
 
                 if vid_index == 69:
                     failed_downloads.append(urls[a].replace("\r\n", "").replace('\n', ''))
@@ -218,7 +218,7 @@ async def download(session: aiohttp.ClientSession, params: DownloadParams, index
     else:
         display_string = (str(index + 1) if (index + 1 > 9) else ("0" + str(index + 1))) + ". " + format_name(params.title).ljust(37) + " "
 
-    time_start = time.perf_counter()
+    # time_start = time.perf_counter()
 
     async with session.get(params.url, timeout=3600) as response:
         total_size = int(response.headers.get('content-length', 0))
@@ -230,12 +230,12 @@ async def download(session: aiohttp.ClientSession, params: DownloadParams, index
                         break
                     f.write(chunk)
                     pbar.update(len(chunk))
-                    time_current = time.perf_counter()
-                    time_elapsed = time_current - time_start
-                    download_speed = pbar.n / time_elapsed
-                    if download_speed > 0:
-                        est_time_remaining = (total_size - pbar.n) / download_speed
-                        pbar.set_postfix_str(f"Elapsed: {format_time(time_elapsed)}s, ETA: {format_time(est_time_remaining)}s")
+                    # time_current = time.perf_counter()
+                    # time_elapsed = time_current - time_start
+                    # download_speed = pbar.n / time_elapsed
+                    # if download_speed > 0:
+                    #     est_time_remaining = (total_size - pbar.n) / download_speed
+                    #     pbar.set_postfix_str(f"Elapsed: {format_time(time_elapsed)}s, ETA: {format_time(est_time_remaining)}s")
 
 
 async def download_from_queue(queue, session):
@@ -246,7 +246,7 @@ async def download_from_queue(queue, session):
 
 
 async def download_all(url_list):
-    async with aiohttp.ClientSession() as session:
+    async with aiohttp.ClientSession(connector=aiohttp.TCPConnector(ssl=False)) as session:
         counter = 0
         tasks = []
         queue = asyncio.Queue()
